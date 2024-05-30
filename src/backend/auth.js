@@ -1,11 +1,12 @@
 import { getApp, initializeApp } from "firebase/app";
 import {signInWithEmailAndPassword} from 'firebase/auth';
-import { initializeAuth, getAuth, verifyPasswordResetCode, confirmPasswordReset} from 'firebase/auth';
-import firebaseConfig from './authConfig.json'; 
+import { initializeAuth, getAuth, verifyPasswordResetCode, confirmPasswordReset} from 'firebase/auth'; 
+import { getSecret } from "wix-secrets-backend";
 
-function connectToFirebaseAuth() {
+async function connectToFirebaseAuth() {
     let _app;
     try{
+        const firebaseConfig = JSON.parse(await getSecret('firebase-auth'));
         _app = initializeApp(firebaseConfig);
         initializeAuth(_app);
     } catch (e) {
@@ -27,6 +28,7 @@ export async function setNewPassword(pass, oob){
 
 export async function authenticate(email, password) {
     try{
+        const app = connectToFirebaseAuth()
         const auth = getAuth(app);
         const creds = await signInWithEmailAndPassword(auth, email, password);
         const user = creds.user;
